@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAIN</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+
+    <style>
+        /* Style for the collapsible list items */
+        .collapsible-list-item {
+            cursor: pointer;
+            margin: 5px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+
+        /* Style for the collapsed content */
+        .collapsed-content {
+            display: none;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        td {
+            display: none;
+        }
+
+        td[data-col="1"], th[data-col="1"] {
+            display: table-cell;
+        }
+
+        th[data-col="1"] {
+            background: #ffce63;
+        }
+
+        th.active {
+            background-color: #007BFF;
+            color: white;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="main-page">
+        <div class="header"></div>
+        <div class="body">
+            <div id="excel-data-container"></div>
+            <div class="accordion" id="accordionExample"></div>
+        </div>
+        <div class="footer"></div>
+    </div>
+
+    <script>
+
+        function createContentBox(pachkhanAudioTitle, pachkhanAudioSource, pachkhanAudioHeading, pachkhanAudioCollapse, pachkhanNumber = "0", firstElement = false) {
+
+            // Create a div element for the card
+            var card = $('<div>', {
+                class: 'card collapsible-list-item'
+            });
+
+            // Create a div element for the card header
+            var cardHeader = $('<div>', {
+                class: 'card-header',
+                id: pachkhanAudioHeading
+            });
+
+            // Create an h2 element for the card header
+            var h2 = $('<h2>', {
+                class: 'mb-0'
+            });
+
+            // Create a button element for the card header
+            var button = $('<button>', {
+                class: 'btn btn-link ' + (firstElement ? '' : 'collapsed'),
+                type: 'button',
+                'data-toggle': 'collapse',
+                'data-target': '#' + pachkhanAudioCollapse,
+                'aria-expanded': firstElement ? 'true' : 'false',
+                'aria-controls': pachkhanAudioCollapse
+            });
+
+            // Create an h5 element for the button text
+            var h5 = $('<h5>', {
+                class: 'pachkhan-audio-h5',
+                text: pachkhanAudioTitle + ' Pachkhan'
+            });
+
+            // Append the h5 element to the button
+            button.append(h5);
+
+            // Append the button to the h2 element
+            h2.append(button);
+
+            // Append the h2 element to the card header
+            cardHeader.append(h2);
+
+            // Create a div element for the collapsed content
+            var collapse = $('<div>', {
+                class: 'collapse collapsed-content ',//  + (firstElement ? 'show' : ''),
+                id: pachkhanAudioCollapse,
+                'aria-labelledby': pachkhanAudioHeading,
+                'aria-parent': '#accordionExample'
+            });
+
+            // Create a div element for the card body
+            var cardBody = $('<div>', {
+                class: 'card-body',
+            });
+
+            var audioDiv = $('<div>',{
+                Align: 'center',
+            })
+            // Create an audio element
+            var audio = $('<audio>', {
+                controls: '',
+            });
+
+            // Create a source element for the audio
+            var audioSource = $('<source>', {
+                class: 'pachkhan-audio-source',
+                src: pachkhanAudioSource,
+                type: 'audio/mpeg'
+            });
+
+            // Create a text node for the audio fallback message
+            //// Your browser does not support the audio element.
+            var audioFallback = document.createTextNode('Your browser does not support the audio element.');
+
+            // Append the source element to the audio element
+            audio.append(audioSource);
+            audio.append(audioFallback)
+            audioDiv.append(audio);
+            
+            // Append the audio element to the card body
+            cardBody.append(audioDiv);
+
+
+            // Create a paragraph to display text of pachkhan
+            // console.log(pachkhanAudioTitle);
+            function handleResult(result) {
+                tablePachkhanText = result
+                // console.log(tablePachkhanText)
+
+                // Append the audio fallback text to the card body
+                var colToDelete = 0; // Column index to delete
+                var rows = tablePachkhanText.rows;
+                for (var i = 0; i < rows.length; i++) {
+                    rows[i].deleteCell(colToDelete);
+                }
+                try {
+                    var rowToDelete = 2; // Row index to delete
+                    tablePachkhanText.deleteRow(rowToDelete);
+                } catch (error) {
+                    // console.error('Error:', error);
+                }
+                //====================
+                // console.log(tablePachkhanText);
+                const tables = document.getElementsByTagName('table');
+                const headers = tablePachkhanText.querySelectorAll('th');
+                // console.log(tables);
+                // console.log("--------------------");
+                const values = Object.values(tables);
+                values.forEach(value => {
+                    // console.log(value);
+                });
+
+                headers.forEach(header => {
+                    header.addEventListener('click', () => {
+                        // console.log(pachkhanAudioTitle);
+                        // Hide all columns
+                        const allCells = document.querySelectorAll('td');
+                        allCells.forEach(cell => {
+                            // console.log(cell);
+                            cell.style.display = 'none';
+                        });
+
+                        // Show the selected column
+                        const colToToggle = header.getAttribute('data-col');
+                        console.log(colToToggle);
+                        
+                        const headerSelectedDC = document.querySelectorAll(`th[data-col="${colToToggle}"]`);
+                        // console.log(headerSelectedDC);
+                        // Remove background from all header
+                        thAll = document.querySelectorAll('th');
+                        // console.log(thAll);
+                        thAll.forEach(cell => {
+                            // console.log(cell);
+                            cell.style.background = 'transparent';
+                        });
+                        headerSelectedDC.forEach(cell => {
+                            cell.style.background = '#ffce63';
+                        })
+
+                        
+                        const cellsToShow = document.querySelectorAll(`td[data-col="${colToToggle}"]`);
+                        // console.log(cellsToShow)
+                        cellsToShow.forEach(cell => {
+                            // console.log(cell);
+                            cell.style.display = 'table-cell';
+                        });
+                        // Add 'active' class to the selected header
+                        // header.classList.add('active');
+                    });
+                });
+                //====================
+                cardBody.append(tablePachkhanText);
+            }
+            (async () => {
+                try {
+                    var result = await getPachkhanText(pachkhanAudioTitle, pachkhanNumber);
+                    handleResult(result);
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            })();
+
+
+
+
+            // Append the card header and card body to the card
+            card.append(cardHeader, collapse);
+            collapse.append(cardBody);
+
+            // Now, you can append the "card" variable to your container element.
+
+            h5.on('click', function () {
+                collapse.toggle();
+                card.siblings().find('.collapsed-content').slideUp('slow');
+            });
+
+            // Append the card to the container div in your HTML document
+            $('#accordionExample').append(card);
+
+        }
+
+        async function getPachkhanText(name, pachkhanNumber) {
+            return new Promise((resolve, reject) => {
+                fetch('./../../pachkhan.xlsx')
+                    .then(response => response.arrayBuffer())
+                    .then(data => {
+                        // Parse the Excel data using XLSX.js
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheetName = workbook.SheetNames[0]; // Assuming the data is in the first sheet
+                        const worksheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                        // Generate an HTML table from the JSON data
+                        const table = document.createElement('table');
+                        table.classList.add('excel-table');
+
+                        // Create the table header row
+                        const headerRow = document.createElement('tr');
+                        jsonData[0].forEach((cellData, columnIndex) => {
+                            const th = document.createElement('th');
+                            th.textContent = cellData;
+                            th.setAttribute('data-col', columnIndex);
+                            th.style.textAlign = 'center';
+                            headerRow.appendChild(th);
+                        });
+                        table.appendChild(headerRow);
+
+                        var pachkhanTextObject = new Array;
+
+                        // Create rows for the data
+                        jsonData.slice(1).forEach(rowData => {
+                            const row = document.createElement('tr');
+
+                            var rowDataString = rowData[0];
+                            var rowDataStringLower = rowDataString
+                            var nameLower = name
+                            nameLower = nameLower.split(" ")[0];
+                            // console.log(nameLower);
+                            if (rowDataStringLower.toLowerCase().includes(nameLower.toLowerCase())) {
+                                rowData.forEach((cellData, columnIndex) => {
+                                    const td = document.createElement('td');
+                                    td.textContent = cellData;
+                                    td.setAttribute('data-col', columnIndex);
+                                    td.setAttribute('colspan', 3);
+                                    td.style.textAlign = 'justify';
+                                    row.appendChild(td);
+                                });
+                                table.appendChild(row);
+                            }
+                        });
+                        // Resolve the promise with the generated table
+                        resolve(table);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching the file:', error);
+                        reject(error);
+                    });
+            });
+        }
+        var tablePachkhanText;
+        // getPachkhanText('Ayambil')
+        //     .then(table => {
+        //         tablePachkhanText = table;
+        //         console.log(tablePachkhanText);
+        //     })
+        // console.log(tablePachkhanText);
+
+
+        // function handleResult(result){
+        //     tablePachkhanText = result
+        //     console.log(tablePachkhanText)
+        // }
+
+        // (async () => {
+        //     try {
+        //         var result = await getPachkhanText('Ayambil');
+        //         handleResult(result);
+        //     } catch (error) {
+        //         console.error('Error:', error);
+        //     }
+        // })();
+        // console.log(tablePachkhanText);
+
+
+        // getPachkhanText('Ayambil')
+        //     .then(table => {
+        //         console.log(table); // This will log the generated table
+        //         // Append the table to the HTML element where you want to display it
+        //         // document.getElementById('excel-data-container').appendChild(table);
+        //     })
+        //     .catch(error => {
+        //         console.error('Error:', error);
+        //     });
+
+
+
+
+        // var t = 'indoor'
+        // console.log(typeof(t))
+        // if(t.includes('in')){
+        //     console.log('in present')
+        // }
+
+        // Populate content boxes with different data
+        createContentBox(
+            "Ayambil",
+            "./../../audio/pachkhan_audio/Ayambil    Pachkan   JainOnline org   Aayambil pachkhan   Jain Pachkhan.mp3",
+            "headingOne",
+            "collapseOne",
+            "1",
+            true
+        );
+        createContentBox(
+            "Ekasana and Biyasna",
+            "./../../audio/pachkhan_audio/Biyasna and Ekasna   Pachkhan   JainOnline org   Jain pachkhan   Biayasana and ekasana.mp3",
+            "headingTwo",
+            "collapseTwo",
+            "2"
+        );
+        // createContentBox(
+        //     "Chovihar EVE",
+        //     "./../../audio/pachkhan_audio/Chovihar EVE Pachkhan  JainOnline  Chauvihar jain pachkhan (evening).mp3",
+        //     "headingThree",
+        //     "collapseThree",
+        //     "3",
+        // );
+        createContentBox(
+            "Chovihar Upvas",
+            "./../../audio/pachkhan_audio/Chovihar Upvas   Pachkhan   JainOnline org   Chauvihar Upvas morning pachkhan.mp3",
+            "headingFour",
+            "collapseFour",
+            "4"
+        );
+        // createContentBox(
+        //     "Desa Vagasik",
+        //     "./../../audio/pachkhan_audio/Desa Vagasik  Pachkhan  JainOnline org.mp3",
+        //     "headingFive",
+        //     "collapseFive",
+        //     "5"
+        // );
+        createContentBox(
+            "Dharana",// EVE",
+            "./../../audio/pachkhan_audio/Dharana EVE   Pachkhan   JainOnline org.mp3",
+            "headingSix",
+            "collapseSix",
+            "6"
+        );
+        createContentBox(
+            "Duvihar",
+            "./../../audio/pachkhan_audio/Duvihar   Pachkhan   JainOnline org.mp3",
+            "headingSeven",
+            "collapseSeven",
+            "7"
+        );
+        createContentBox(
+            "Navkarsi",
+            "./../../audio/pachkhan_audio/Navkarsi   Pachkhan   JainOnline org   Navakarsi.mp3",
+            "headingEight",
+            "collapseEight",
+            "8"
+        );
+        createContentBox(
+            "Panhar",
+            "./../../audio/pachkhan_audio/Panhar   Pachkhan   JainOnline org   Evening Panhar pachkhan.mp3",
+            "headingNine",
+            "collapseNine",
+            "9"
+        );
+        createContentBox(
+            "Porsi and Sadhporsi",
+            "./../../audio/pachkhan_audio/Porsi and Sadh Porsi   Pachkhan   JainOnline org.mp3",
+            "headingTen",
+            "collapseTen",
+            "10"
+        );
+        createContentBox(
+            "Purimaddh",
+            "./../../audio/pachkhan_audio/Purimadh   Pachkhan   JainOnline org.mp3",
+            "headingEleven",
+            "collapseEleven",
+            "11"
+        );
+        // createContentBox(
+        //     "Sanjh Panhar",
+        //     "./../../audio/pachkhan_audio/Sanjh Panhar  Pachkhan  JainOnline org  Evening pachkhan of Panahar  Panhar.mp3",
+        //     "headingTwelve",
+        //     "collapseTwelve",
+        //     "12"
+        // );
+        // createContentBox(
+        //     "Tivihar EVE",
+        //     "./../../audio/pachkhan_audio/Tivihar EVE  Pachkhan  JainOnline org.mp3",
+        //     "headingThirteen",
+        //     "collapseThirteen",
+        //     "13"
+        // );
+        createContentBox(
+            "Tivihar Upvas",
+            "./../../audio/pachkhan_audio/Tivihar Upvas   Pachkhan   JainOnline org.mp3",
+            "headingFourteen",
+            "collapseThree",
+            "14"
+        );
+
+    </script>
+</body>
+
+</html>

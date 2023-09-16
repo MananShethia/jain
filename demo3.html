@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Selected Header Content Across Tables</title>
+    <style>
+        /* Reset some default table styles */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            transition: all 0.3s ease; /* Add a smooth transition effect */
+        }
+
+        /* Initial CSS to hide all <td> elements */
+        table td {
+            display: none;
+        }
+
+        /* CSS to show <td> elements with a specific data-col attribute */
+        table td[data-col="column2"],
+        table th[data-col="column2"] {
+            display: table-cell;
+        }
+
+        /* Highlight the selected header */
+        th.active {
+            background-color: #007BFF;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Table 1 -->
+    <table>
+        <thead>
+            <tr>
+                <th data-col="column1">Header 1</th>
+                <th data-col="column2">Header 2</th>
+                <th data-col="column3">Header 3</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td data-col="column1">Data 1A</td>
+                <td data-col="column2">Data 1B</td>
+                <td data-col="column3">Data 1C</td>
+            </tr>
+            <!-- Add more rows as needed -->
+        </tbody>
+    </table>
+
+    <!-- Table 2 -->
+    <table>
+        <thead>
+            <tr>
+                <th data-col="column1">Header 1</th>
+                <th data-col="column2">Header 2</th>
+                <th data-col="column3">Header 3</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td data-col="column1">Data 2A</td>
+                <td data-col="column2">Data 2B</td>
+                <td data-col="column3">Data 2C</td>
+            </tr>
+            <!-- Add more rows as needed -->
+        </tbody>
+    </table>
+
+    <!-- JavaScript -->
+    <script>
+        const headers = document.querySelectorAll('th');
+
+        headers.forEach(header => {
+            header.addEventListener('click', () => {
+                // Remove 'active' class from all headers
+                headers.forEach(h => h.classList.remove('active'));
+
+                // Hide all columns except the selected header's column
+                const allCells = document.querySelectorAll('td');
+                allCells.forEach(cell => {
+                    cell.style.display = 'none';
+                });
+
+                const colToToggle = header.getAttribute('data-col');
+                const cellsToShow = document.querySelectorAll(`td[data-col="${colToToggle}"]`);
+                cellsToShow.forEach(cell => {
+                    cell.style.display = 'table-cell';
+                });
+
+                // Add 'active' class to the selected header
+                header.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

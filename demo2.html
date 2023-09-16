@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toggle Table Columns</title>
+    <style>
+        /* Initial CSS to hide all <td> elements */
+        table td {
+            display: none;
+        }
+
+        /* CSS to show <td> elements with a specific data-col attribute */
+        table td[data-col="column1"],
+        table th[data-col="column1"] {
+            display: table-cell;
+        }
+    </style>
+</head>
+<body>
+    <!-- Table 1 -->
+    <table>
+        <thead>
+            <tr>
+                <th data-col="column1">Header 1</th>
+                <th data-col="column2">Header 2</th>
+                <th data-col="column3">Header 3</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td data-col="column1">Data 1A</td>
+                <td data-col="column2">Data 1B</td>
+                <td data-col="column3">Data 1C</td>
+            </tr>
+            <!-- Add more rows as needed -->
+        </tbody>
+    </table>
+
+    <!-- Table 2 -->
+    <table>
+        <thead>
+            <tr>
+                <th data-col="column1">Header 1</th>
+                <th data-col="column2">Header 2</th>
+                <th data-col="column3">Header 3</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td data-col="column1">Data 2A</td>
+                <td data-col="column2">Data 2B</td>
+                <td data-col="column3">Data 2C</td>
+            </tr>
+            <!-- Add more rows as needed -->
+        </tbody>
+    </table>
+
+    <script>
+        const tables = document.querySelectorAll('table');
+
+        tables.forEach(table => {
+            const headers = table.querySelectorAll('th');
+
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const colToToggle = header.getAttribute('data-col');
+
+                    // Hide all columns
+                    const allCells = table.querySelectorAll('td');
+                    allCells.forEach(cell => {
+                        cell.style.display = 'none';
+                    });
+
+                    // Show the selected column
+                    const cellsToShow = table.querySelectorAll(`td[data-col="${colToToggle}"]`);
+                    cellsToShow.forEach(cell => {
+                        cell.style.display = 'table-cell';
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
